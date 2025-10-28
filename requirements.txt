@@ -1,0 +1,5 @@
+ipykernel
+fastapi
+uvicorn
+requests
+python-dotenv
