@@ -8,6 +8,7 @@ load_dotenv()
 app = FastAPI()
 
 VERIFY_TOKEN = os.getenv("VERIFY_TOKEN", "my_verify_token")
+ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")
 
 @app.get("/webhook")
 async def verify_webhook(request: Request):
