@@ -1,4 +1,10 @@
 .env
 *.ipynb
 buytrack/
-*test*.py
+tests/
+downloads/
+
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
