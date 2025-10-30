@@ -9,6 +9,11 @@ from app.ocr import extract_text_from_image
 
 app = FastAPI()
 
+# Root endpoint for basic health check
+@app.get("/")
+def root():
+    return {"message": "FastAPI WhatsApp webhook running!"}
+
 # Tokens
 VERIFY_TOKEN = os.getenv("VERIFY_TOKEN")
 ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")

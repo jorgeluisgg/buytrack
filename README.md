@@ -10,4 +10,9 @@ Instructions
 3. User sends images, images with text, or just text messages.
     - If a registry has no data the agent asks for clarification.
     - If data is missed the agent can make a suggestion on the category and subcategory.
-    - The agent will ask for confirmation before proceeding to register the data.
+    - The agent will ask for confirmation about the data to register.
+4. The agent stores the data in a tabe format (excel, sheets, etc.).
+
+The data stored includes at least Owner, date, category, subcategory, amount spent, payment type (cash, credit, debit, spei) and can ideally add description, invoice number, and deductibility (for accounting).
+The agent provides a summary of the week expenses, end of month expenses, and year expenses.
+The agent provides data analysis suggesting savings.
