@@ -1,5 +1,5 @@
-# Buytrack#
-## WhatsApp agent to track expenses##
+# Buytrack
+## WhatsApp agent to track expenses
 
 Instructions
 1. Welcome prompt and questions.
