@@ -48,7 +48,7 @@ async def handle_webhook(request: Request):
                         print(f"Image URL: {image_url}")
 
                         # Step 2: Download image
-                        file_path = download_image(image_url, media_id)
+                        file_path = download_image(image_url, media_id, ACCESS_TOKEN)
 
                         # Step 3: Extract OCR if downloaded
                         extracted_text = extract_text_from_image(file_path) if file_path else ""

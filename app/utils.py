@@ -1,7 +1,7 @@
 import requests
 import os
 
-def download_image(url: str, media_id: str) -> str:
+def download_image(url: str, media_id: str, access_token: str) -> str:
     """
     Downloads image from a URL and saves it locally in the downloads folder.
     Returns the file path or empty string if fails.
@@ -9,7 +9,8 @@ def download_image(url: str, media_id: str) -> str:
     os.makedirs("./downloads", exist_ok=True)
     file_path = f"./downloads/{media_id}.jpg"
     try:
-        response = requests.get(url)
+        headers = {"Authorization": f"Bearer {access_token}"}
+        response = requests.get(url, headers=headers)
         response.raise_for_status()
         with open(file_path, "wb") as f:
             f.write(response.content)
