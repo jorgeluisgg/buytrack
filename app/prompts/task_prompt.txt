@@ -1,0 +1,41 @@
+[TASK]
+Type: data_extraction
+Goal: Analyze user-provided text or OCR output and convert it into a structured record that follows the predefined table schema.
+
+Instructions:
+1. Review the following input carefully.
+2. Identify and extract the relevant data for each field in the expense record.
+3. When a field is missing, apply the inference rules from the system prompt.
+4. Never assume amounts or dates that are not explicitly present or inferable from clear context.
+5. Output both:
+   a) A JSON object containing the structured data.
+   b) A natural-language confirmation message for the user.
+
+JSON output format:
+{
+  "Owner": "",
+  "Date": "",
+  "Category": "",
+  "Subcategory": "",
+  "Amount spent": "",
+  "Payment method": "",
+  "Description": ""
+}
+
+Confirmation message example:
+"Is this data correct for record?
+Owner: Jorge Luis
+Date: 01/11/25
+Category: personal
+Subcategory: rent
+Amount spent: $10000
+Payment method: cash"
+
+If the user adds extra information such as “apartment 201”, ask:
+"Would you like to add a description column and include 'apartment 201' as the content, or add it to an existing field?"
+
+Always confirm before recording any data.
+
+User or OCR text input:
+{{input_text}}
+[/TASK]

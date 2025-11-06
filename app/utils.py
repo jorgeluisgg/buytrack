@@ -33,3 +33,38 @@ def get_image_url(media_id: str, access_token: str) -> str:
     except Exception as e:
         print(f"Error fetching media URL: {e}")
         return ""
+
+import requests
+
+
+def send_whatsapp_message(recipient_id: str, message: str, access_token: str, phone_number_id: str):
+    """
+    Sends a WhatsApp text message using the Graph API.
+
+    Args:
+        recipient_id (str): WhatsApp ID of the recipient (user phone number in international format).
+        message (str): The message body to send.
+        access_token (str): WhatsApp Cloud API access token.
+        phone_number_id (str): Phone number ID from your WhatsApp Cloud configuration.
+    """
+    try:
+        url = f"https://graph.facebook.com/v17.0/{phone_number_id}/messages"
+        headers = {
+            "Authorization": f"Bearer {access_token}",
+            "Content-Type": "application/json"
+        }
+        payload = {
+            "messaging_product": "whatsapp",
+            "to": recipient_id,
+            "type": "text",
+            "text": {"body": message}
+        }
+
+        response = requests.post(url, headers=headers, json=payload)
+        response.raise_for_status()
+        if response.status_code != 200:
+            print(f"Error sending WhatsApp message: {response.text}")
+        print(f"Message sent to {recipient_id}: {message[:80]}...")
+
+    except Exception as e:
+        print(f"Error sending WhatsApp message: {e}")
