@@ -61,7 +61,7 @@ def send_whatsapp_message(recipient_id: str, message: str, access_token: str, ph
         }
 
         response = requests.post(url, headers=headers, json=payload)
-        response.raise_for_status()
+        # response.raise_for_status()
         if response.status_code != 200:
             print(f"Error sending WhatsApp message: {response.text}")
         print(f"Message sent to {recipient_id}: {message[:80]}...")
