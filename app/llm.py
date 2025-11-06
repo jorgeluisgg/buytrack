@@ -59,20 +59,20 @@ def call_llm(input_text: str, context_data: dict = None) -> dict:
     """
     Main function to call the LLM and get structured data extraction.
     """
-
-    prompts = build_prompt(input_text, context_data)
+    message = input_text # delete after testing
+    # prompts = build_prompt(input_text, context_data)
 
     # Combine all prompts into the chat message sequence
-    messages = [
-        {"role": "system", "content": prompts["system_prompt"]},
-        {"role": "user", "content": prompts["context_prompt"]},
-        {"role": "user", "content": prompts["task_prompt"]},
-    ]
+    # messages = [
+    #     {"role": "system", "content": prompts["system_prompt"]},
+    #     {"role": "user", "content": prompts["context_prompt"]},
+    #     {"role": "user", "content": prompts["task_prompt"]},
+    # ]
 
     try:
         response = client.chat.completions.create(
             model="gpt-5-nano",
-            messages=messages
+            messages=message # modify after testing
         )
 
         result_text = response.choices[0].message.content.strip()

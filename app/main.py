@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request
 import os
 import requests
 
-from app.utils import download_image, get_image_url, send_whatsapp_message
+from app.utils import download_image, get_image_url, send_whatsapp_message, canonical_e164
 from app.ocr import extract_text_from_image
 from app.llm import call_llm
 
@@ -99,7 +99,7 @@ async def handle_webhook(request: Request):
             for change in entry.get("changes", []):
                 messages = change["value"].get("messages", [])
                 for msg in messages:
-                    sender = msg["from"]
+                    normalized_sender = canonical_e164(msg["from"], default_region="MX")
                     msg_type = msg["type"]
 
                     if msg_type == "text":
@@ -111,7 +111,7 @@ async def handle_webhook(request: Request):
                         print(f"AI: {ai_reply}")
 
                         # Send reply back via WhatsApp
-                        send_whatsapp_message(sender, ai_reply, ACCESS_TOKEN, PHONE_NUMBER_ID)
+                        send_whatsapp_message(normalized_sender, ai_reply, ACCESS_TOKEN, PHONE_NUMBER_ID)
         return {"status": "ok"}
     except Exception as e:
         print(f"Webhook error: {e}")

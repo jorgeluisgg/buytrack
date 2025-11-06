@@ -1,5 +1,7 @@
 import requests
 import os
+import phonenumbers
+import re
 
 def download_image(url: str, media_id: str, access_token: str) -> str:
     """
@@ -68,3 +70,18 @@ def send_whatsapp_message(recipient_id: str, message: str, access_token: str, ph
 
     except Exception as e:
         print(f"Error sending WhatsApp message: {e}")
+
+def canonical_e164(number: str, default_region: str = "MX") -> str:
+    """
+    Parse the number and return canonical E.164 digits without '+'.
+    Example: '+52 1 55 3994 2359' -> '525539942359' (or '521...' normalized depending on parsing).
+    default_region is used if no country code is present.
+    """
+    try:
+        parsed = phonenumbers.parse(number, default_region)
+        if not phonenumbers.is_valid_number(parsed):
+            return re.sub(r'\D', '', number)  # fallback to digits
+        e164 = phonenumbers.format_number(parsed, phonenumbers.PhoneNumberFormat.E164)
+        return e164.lstrip('+')  # Graph API uses digits without plus
+    except Exception:
+        return re.sub(r'\D', '', number)
