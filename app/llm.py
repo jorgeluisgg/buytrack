@@ -72,7 +72,7 @@ def call_llm(input_text: str, context_data: dict = None) -> dict:
     try:
         response = client.chat.completions.create(
             model="gpt-5-nano",
-            messages=message # modify after testing
+            messages=[{"role": "user", "content": message}] # modify after testing
         )
 
         result_text = response.choices[0].message.content.strip()
