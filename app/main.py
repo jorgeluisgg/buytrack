@@ -106,6 +106,9 @@ async def handle_webhook(request: Request):
                         user_message = msg["text"]["body"]
                         print(f"User: {user_message}")
 
+                        print("Raw sender:", msg["from"])
+                        print("Normalized sender:", normalized_sender)
+
                         # Call LLM
                         ai_reply = call_llm(user_message)
                         print(f"AI: {ai_reply}")
