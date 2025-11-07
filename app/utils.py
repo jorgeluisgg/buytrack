@@ -78,10 +78,12 @@ def canonical_e164(number: str, default_region: str = "MX") -> str:
     default_region is used if no country code is present.
     """
     try:
-        parsed = phonenumbers.parse(number, default_region)
-        if not phonenumbers.is_valid_number(parsed):
-            return re.sub(r'\D', '', number)  # fallback to digits
-        e164 = phonenumbers.format_number(parsed, phonenumbers.PhoneNumberFormat.E164)
-        return e164.lstrip('+')  # Graph API uses digits without plus
+        n = phonenumbers.parse(number, 'MX')
+        if not phonenumbers.is_valid_number(n):
+            n = phonenumbers.format_number(n, phonenumbers.PhoneNumberFormat.E164)
+            n = re.sub(r"^\+521", "+52", n)
+            n = phonenumbers.parse(n, 'MX')
+            n = phonenumbers.format_number(n, phonenumbers.PhoneNumberFormat.E164)
+        return n.strip('+')  # Graph API uses digits without plus
     except Exception:
         return re.sub(r'\D', '', number)
