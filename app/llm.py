@@ -2,6 +2,9 @@ import os
 import json
 from openai import OpenAI
 from datetime import datetime
+from sqlalchemy import create_engine
+
+from app.utils import get_conversation
 
 # Initialize OpenAI API
 # openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -12,6 +15,7 @@ BASE_DIR = "app/prompts"
 SYSTEM_PROMPT_PATH = os.path.join(BASE_DIR, "system_prompt.txt")
 CONTEXT_PROMPT_PATH = os.path.join(BASE_DIR, "context_template.txt")
 TASK_PROMPT_PATH = os.path.join(BASE_DIR, "task_prompt.txt")
+DATABASE_URL = create_engine(os.getenv("DATABASE_URL"))
 
 def load_prompt(path: str) -> str:
     """Utility to safely load a text file as prompt."""
@@ -55,11 +59,11 @@ def build_prompt(input_text: str, context_data: dict = None) -> dict:
     }
 
 
-def call_llm(input_text: str, context_data: dict = None) -> dict:
+def call_llm(normalized_sender, model="gpt-5-nano", max_context_tokens=1500, response_tokens=404, engine=DATABASE_URL):
     """
     Main function to call the LLM and get structured data extraction.
     """
-    message = input_text # delete after testing
+
     # prompts = build_prompt(input_text, context_data)
 
     # Combine all prompts into the chat message sequence
@@ -69,10 +73,20 @@ def call_llm(input_text: str, context_data: dict = None) -> dict:
     #     {"role": "user", "content": prompts["task_prompt"]},
     # ]
 
+    # 1. Retrieve recent conversation
+    history = get_conversation(normalized_sender,engine, limit=6) # set a higher limit to increase messages in memory
+
+    # 2. Build context for the LLM
+    messages = [
+        {"role": role, "content": message}
+        for role, message in reversed(history)
+    ]
+
     try:
         response = client.chat.completions.create(
-            model="gpt-5-nano",
-            messages=[{"role": "user", "content": message}] # modify after testing
+            model=model,
+            messages=messages,
+            max_tokens=response_tokens # Adjust to limit model response
         )
 
         result_text = response.choices[0].message.content.strip()

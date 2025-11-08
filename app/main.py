@@ -2,9 +2,10 @@ from fastapi import FastAPI, Request
 import os
 import requests
 
-from app.utils import download_image, get_image_url, send_whatsapp_message, canonical_e164
+from app.utils import download_image, get_image_url, send_whatsapp_message, canonical_e164, save_message
 from app.ocr import extract_text_from_image
 from app.llm import call_llm
+
 
 # # Load environment variables
 # from dotenv import load_dotenv
@@ -105,12 +106,14 @@ async def handle_webhook(request: Request):
                     if msg_type == "text":
                         user_message = msg["text"]["body"]
                         print(f"User: {user_message}")
-
-                        # Call LLM
-                        ai_reply = call_llm(user_message)
+                        # 1. Save the user message
+                        save_message(normalized_sender, "user", user_message, DATABASE_URL)
+                        # 4. Call LLM with context
+                        ai_reply = call_llm(normalized_sender)
                         print(f"AI: {ai_reply}")
-
-                        # Send reply back via WhatsApp
+                        # 5. Save the reply
+                        save_message(normalized_sender, "assistant", ai_reply, DATABASE_URL)
+                        # 6. Send reply back via WhatsApp
                         send_whatsapp_message(normalized_sender, ai_reply, ACCESS_TOKEN, PHONE_NUMBER_ID)
         return {"status": "ok"}
     except Exception as e:

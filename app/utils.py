@@ -2,7 +2,9 @@ import requests
 import os
 import phonenumbers
 import re
+from sqlalchemy import text
 
+# WEBHOOK UTILITIES
 def download_image(url: str, media_id: str, access_token: str) -> str:
     """
     Downloads image from a URL and saves it locally in the downloads folder.
@@ -38,7 +40,7 @@ def get_image_url(media_id: str, access_token: str) -> str:
 
 import requests
 
-
+# WHATSAPP UTILITIES
 def send_whatsapp_message(recipient_id: str, message: str, access_token: str, phone_number_id: str):
     """
     Sends a WhatsApp text message using the Graph API.
@@ -87,3 +89,27 @@ def canonical_e164(number: str, default_region: str = "MX") -> str:
         return n.strip('+')  # Graph API uses digits without plus
     except Exception:
         return re.sub(r'\D', '', number)
+
+# DATABASE UTILITIES
+def save_message(user_phone: str, role: str, message: str, engine):
+    """
+    Saves a message to the database for a given user.
+    """
+    query = text("""
+        INSERT INTO messages (user_phone, role, message)
+        VALUES (:u, :r, :m)
+    """)
+    with engine.begin() as conn:  # begin() handles commits automatically
+        conn.execute(query, {"u": user_phone, "r": role, "m": message})
+
+def get_conversation(user_phone: str, engine, limit: int = 10):
+    query = text("""
+        SELECT role, message
+        FROM messages
+        WHERE user_phone = :u
+        ORDER BY created_at DESC
+        LIMIT :limit
+    """)
+    with engine.connect() as conn:
+        result = conn.execute(query, {"u": user_phone, "limit": limit})
+        return result.fetchall()
