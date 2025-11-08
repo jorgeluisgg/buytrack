@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request
 import os
 import requests
+from sqlalchemy import create_engine
 
 from app.utils import download_image, get_image_url, send_whatsapp_message, canonical_e164, save_message
 from app.ocr import extract_text_from_image
@@ -22,6 +23,7 @@ def root():
 VERIFY_TOKEN = os.getenv("VERIFY_TOKEN")
 ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")
 PHONE_NUMBER_ID = os.getenv("PHONE_NUMBER_ID")
+DATABASE_URL = create_engine(os.getenv("DATABASE_URL"))
 
 # Verify webhook
 @app.get("/webhook")
