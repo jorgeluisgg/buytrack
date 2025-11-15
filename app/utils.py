@@ -91,6 +91,26 @@ def canonical_e164(number: str, default_region: str = "MX") -> str:
         return re.sub(r'\D', '', number)
 
 # DATABASE UTILITIES
+def get_or_create_user(user_phone: str, engine):
+    query_select = text("""
+        SELECT id, phone, name
+        FROM users
+        WHERE phone = :p
+    """)
+
+    query_insert = text("""
+        INSERT INTO users (phone)
+        VALUES (:p)
+        RETURNING id, phone, name
+    """)
+
+    with engine.begin() as conn:
+        result = conn.execute(query_select, {"p": user_phone}).fetchone()
+        if result:
+            return result
+        result = conn.execute(query_insert, {"p": user_phone}).fetchone()
+        return result
+
 def save_message(user_phone: str, role: str, message: str, engine):
     """
     Saves a message to the database for a given user.

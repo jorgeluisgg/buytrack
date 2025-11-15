@@ -3,7 +3,7 @@ import os
 import requests
 from sqlalchemy import create_engine
 
-from app.utils import download_image, get_image_url, send_whatsapp_message, canonical_e164, save_message
+from app.utils import download_image, get_image_url, send_whatsapp_message, canonical_e164, save_message, get_or_create_user
 from app.ocr import extract_text_from_image
 from app.llm import call_llm
 
@@ -103,6 +103,7 @@ async def handle_webhook(request: Request):
                 messages = change["value"].get("messages", [])
                 for msg in messages:
                     normalized_sender = canonical_e164(msg["from"], default_region="MX")
+                    user = get_or_create_user(normalized_sender, DATABASE_URL)
                     msg_type = msg["type"]
 
                     if msg_type == "text":
