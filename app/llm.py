@@ -64,15 +64,6 @@ def call_llm(normalized_sender, model="gpt-5-nano", max_context_tokens=1500, res
     Main function to call the LLM and get structured data extraction.
     """
 
-    # prompts = build_prompt(input_text, context_data)
-
-    # Combine all prompts into the chat message sequence
-    # messages = [
-    #     {"role": "system", "content": prompts["system_prompt"]},
-    #     {"role": "user", "content": prompts["context_prompt"]},
-    #     {"role": "user", "content": prompts["task_prompt"]},
-    # ]
-
     # 1. Retrieve recent conversation
     history = get_conversation(normalized_sender,engine, limit=6) # set a higher limit to increase messages in memory
 
@@ -90,13 +81,10 @@ def call_llm(normalized_sender, model="gpt-5-nano", max_context_tokens=1500, res
         )
 
         result_text = response.choices[0].message.content.strip()
+        if not result_text:
+            result_text= "I did not understand that. Can you rephrase?"
         return result_text
 
-        # Try to parse JSON output
-        # try:
-        #     return json.loads(result_text)
-        # except json.JSONDecodeError:
-        #     return {"error": "Failed to parse JSON", "raw_output": result_text}
-
     except Exception as e:
-        return {"error": f"LLM call failed: {str(e)}"}
+        print("LLM failure:", str(e))
+        return "I encountered an issue and could not understand. Please try again."

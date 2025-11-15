@@ -38,8 +38,6 @@ def get_image_url(media_id: str, access_token: str) -> str:
         print(f"Error fetching media URL: {e}")
         return ""
 
-import requests
-
 # WHATSAPP UTILITIES
 def send_whatsapp_message(recipient_id: str, message: str, access_token: str, phone_number_id: str):
     """
