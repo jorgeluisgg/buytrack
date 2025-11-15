@@ -86,7 +86,7 @@ def call_llm(normalized_sender, model="gpt-5-nano", max_context_tokens=1500, res
         response = client.chat.completions.create(
             model=model,
             messages=messages,
-            max_tokens=response_tokens # Adjust to limit model response
+            max_completion_tokens=response_tokens # Adjust to limit model response
         )
 
         result_text = response.choices[0].message.content.strip()
