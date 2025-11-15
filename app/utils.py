@@ -127,7 +127,7 @@ def get_conversation(user_phone: str, engine, limit: int = 10):
         SELECT role, message
         FROM messages
         WHERE user_phone = :u
-        ORDER BY created_at DESC
+        ORDER BY timestamp DESC
         LIMIT :limit
     """)
     with engine.connect() as conn:
