@@ -6,6 +6,7 @@ from sqlalchemy import create_engine
 from app.utils import download_image, get_image_url, send_whatsapp_message, canonical_e164, save_message, get_or_create_user
 from app.ocr import extract_text_from_image
 from app.llm import call_llm
+from app.agent_processor import process_message
 
 
 # # Load environment variables
@@ -112,13 +113,13 @@ async def handle_webhook(request: Request):
                         # 1. Save the user message
                         save_message(normalized_sender, "user", user_message, DATABASE_URL)
                         # 4. Call LLM with context
-                        ai_reply = call_llm(normalized_sender)
-                        print(f"AI: {ai_reply}")
+                        raw_reply = call_llm(normalized_sender)
+                        print(f"AI: {raw_reply}")
+                        # 5. Prepare final reply using agent processor
+                        final_reply = process_message(normalized_sender, user_message, raw_reply)
                         # 5. Save the reply
-                        save_message(normalized_sender, "assistant", ai_reply, DATABASE_URL)
+                        save_message(normalized_sender, "assistant", final_reply, DATABASE_URL)
                         # 6. Send reply back via WhatsApp
-                        send_whatsapp_message(normalized_sender, ai_reply, ACCESS_TOKEN, PHONE_NUMBER_ID)
-        return {"status": "ok"}
+                        send_whatsapp_message(normalized_sender, final_reply, ACCESS_TOKEN, PHONE_NUMBER_ID)
     except Exception as e:
         print(f"Webhook error: {e}")
-        return {"status": "error"}, 500

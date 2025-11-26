@@ -14,9 +14,9 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 BASE_DIR = "app/prompts"
 SYSTEM_PROMPT_PATH = os.path.join(BASE_DIR, "system_prompt.txt")
 CONTEXT_PROMPT_PATH = os.path.join(BASE_DIR, "context_template.txt")
-TASK_PROMPT_PATH = os.path.join(BASE_DIR, "task_prompt.txt")
 DATABASE_URL = create_engine(os.getenv("DATABASE_URL"))
 MODEL = os.getenv("LLM_MODEL")
+
 
 def load_prompt(path: str) -> str:
     """Utility to safely load a text file as prompt."""
@@ -25,6 +25,7 @@ def load_prompt(path: str) -> str:
             return file.read().strip()
     except FileNotFoundError:
         raise FileNotFoundError(f"Prompt not found at: {path}")
+
 
 def build_prompt(input_text: str, context_data: dict = None) -> dict:
     """
@@ -36,28 +37,26 @@ def build_prompt(input_text: str, context_data: dict = None) -> dict:
 
     # Load all templates
     system_prompt = load_prompt(SYSTEM_PROMPT_PATH)
-    context_prompt_template = load_prompt(CONTEXT_PROMPT_PATH)
-    task_prompt_template = load_prompt(TASK_PROMPT_PATH)
-
-    # Fill context placeholders dynamically
-    if context_data is None:
-        context_data = {
-            "user_name": "User",
-            "language": "Spanish",
-            "default_owner": "User",
-            "default_category": "personal",
-            "categories_and_subcategories": "- Housing\n- Services\n- Transport\n- Groceries\n- Savings\n- Education\n- Health\n- Eating Out\n- Going Out\n- Extras",
-            "user_notes": "No additional notes provided.",
-        }
-
-    context_prompt = context_prompt_template.format(**context_data)
-    task_prompt = task_prompt_template.replace("{{input_text}}", input_text.strip())
+    # context_prompt_template = load_prompt(CONTEXT_PROMPT_PATH)
+    # context_prompt = context_prompt_template.format(**context_data)
 
     return {
         "system_prompt": system_prompt,
-        "context_prompt": context_prompt,
-        "task_prompt": task_prompt
     }
+
+
+def handle_agent_output(agent_output, user_phone):
+    try:
+        parsed = json.loads(agent_output)
+        if parsed.get("action") == "store_expense":
+            expense = parsed.get("expense")
+            from utils import insert_expense
+            insert_expense(user_phone, expense)
+            return "Expense stored successfully."
+        else:
+            return agent_output
+    except:
+        return agent_output
 
 
 def call_llm(normalized_sender, model=MODEL, max_context_tokens=1500, response_tokens=404, engine=DATABASE_URL):
@@ -67,15 +66,18 @@ def call_llm(normalized_sender, model=MODEL, max_context_tokens=1500, response_t
 
     # 1. Retrieve recent conversation
     history = get_conversation(normalized_sender,engine, limit=6) # set a higher limit to increase messages in memory
+    system_prompt_data = build_prompt(input_text="")
 
     # 2. Build context for the LLM
     messages = [
-        {"role": role, "content": message}
-        for role, message in reversed(history)
+        {"role": "system", "content": system_prompt_data["system_prompt"]},
     ]
 
-    #ONLY FOR TESTING
-    print(messages)
+    # 3. Append conversation history after the system prompt
+    messages.extend(
+        {"role": role, "content": message}
+        for role, message in reversed(history)
+    )
 
     try:
         response = client.chat.completions.create(

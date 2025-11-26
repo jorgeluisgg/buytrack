@@ -9,3 +9,4 @@ openai
 phonenumbers
 sqlalchemy
 psycopg2-binary
+supabase

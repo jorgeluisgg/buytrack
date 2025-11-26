@@ -4,6 +4,8 @@ import phonenumbers
 import re
 from sqlalchemy import text
 
+from supabase import create_client
+
 # WEBHOOK UTILITIES
 def download_image(url: str, media_id: str, access_token: str) -> str:
     """
@@ -89,6 +91,12 @@ def canonical_e164(number: str, default_region: str = "MX") -> str:
         return re.sub(r'\D', '', number)
 
 # DATABASE UTILITIES
+
+url = os.getenv("SUPABASE_URL")
+key = os.getenv("SUPABASE_KEY")
+
+supabase = create_client(url, key)
+
 def get_or_create_user(user_phone: str, engine):
     query_select = text("""
         SELECT id, phone, name
@@ -131,3 +139,9 @@ def get_conversation(user_phone: str, engine, limit: int = 10):
     with engine.connect() as conn:
         result = conn.execute(query, {"u": user_phone, "limit": limit})
         return result.fetchall()
+
+def insert_expense(user_phone, expense_json):
+    return supabase.table("expenses").insert({
+        "user_phone": user_phone,
+        "data": expense_json
+    }).execute()

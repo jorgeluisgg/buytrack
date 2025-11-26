@@ -27,9 +27,9 @@ Confirmation message example:
 Owner: Jorge Luis
 Date: 01/11/25
 Category: personal
-Subcategory: rent
+Subcategory: renta
 Amount spent: $10000
-Payment method: cash"
+Payment method: efectivo"
 
 If the user adds extra information such as “apartment 201”, ask:
 "Would you like to add a description column and include 'apartment 201' as the content, or add it to an existing field?"
