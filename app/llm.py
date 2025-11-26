@@ -16,6 +16,7 @@ SYSTEM_PROMPT_PATH = os.path.join(BASE_DIR, "system_prompt.txt")
 CONTEXT_PROMPT_PATH = os.path.join(BASE_DIR, "context_template.txt")
 TASK_PROMPT_PATH = os.path.join(BASE_DIR, "task_prompt.txt")
 DATABASE_URL = create_engine(os.getenv("DATABASE_URL"))
+MODEL = os.getenv("LLM_MODEL")
 
 def load_prompt(path: str) -> str:
     """Utility to safely load a text file as prompt."""
@@ -59,7 +60,7 @@ def build_prompt(input_text: str, context_data: dict = None) -> dict:
     }
 
 
-def call_llm(normalized_sender, model="gpt-5-nano", max_context_tokens=1500, response_tokens=404, engine=DATABASE_URL):
+def call_llm(normalized_sender, model=MODEL, max_context_tokens=1500, response_tokens=404, engine=DATABASE_URL):
     """
     Main function to call the LLM and get structured data extraction.
     """
@@ -72,6 +73,9 @@ def call_llm(normalized_sender, model="gpt-5-nano", max_context_tokens=1500, res
         {"role": role, "content": message}
         for role, message in reversed(history)
     ]
+
+    #ONLY FOR TESTING
+    print(messages)
 
     try:
         response = client.chat.completions.create(
